@@ -1,24 +1,32 @@
 import Header from '../components/Header';
-import { useState, useMemo } from 'react';
+import { Fragment, useState, useMemo } from 'react';
+import Head from 'next/head';
 
 const formatter = Intl.NumberFormat( 'ko-KR' );
+
+const data = [
+  { name: '오늘의 커피', price: 2500 },
+  { name: '에스프레소', price: 2800 },
+  { name: '아메리카노', price: 3000 },
+  { name: '카페라떼', price: 3500 },
+  { name: '카페모카', price: 3800 },
+];
 
 // 상태 state
 export default function Order() {
   // [ 읽기전용, 쓰기전용 ] = useState( 기본값 );
-  const [ hasEspresso, setEspresso ] = useState( false );
-  const [ hasAmericano, setAmericano ] = useState( false );
-  const [ hasLatte, setLatte ] = useState( false );
-  const sum = useMemo( () => {
-    let value = 0;
-    value += hasEspresso ? 2800 : 0;
-    value += hasAmericano ? 3000 : 0;
-    value += hasLatte ? 3500 : 0;
-    return value;
-  }, [ hasEspresso, hasAmericano, hasLatte ] );
+  const [ selected, setSelected ] = useState( [] );
+
+  const sum = useMemo(
+    () => selected.reduce( ( previousValue, item ) => previousValue + item.price, 0 ),
+    [ selected ]
+  );
   
   return (
     <div className="container">
+      <Head>
+          <title>주문하기 - Caffe : 온라인 커피 주문</title>
+      </Head>
 
       <Header />
 
@@ -27,39 +35,28 @@ export default function Order() {
       <h2 className="text-xl font-bold">메뉴판</h2>
 
       <dl>
-        <dt>에스프레소</dt>
-        <dd>
-          2,800원
-          <small>
-            <button onClick={ () => setEspresso( !hasEspresso ) }>
-              [ { hasEspresso ? '선택 해제' : '선택' } ]
-            </button>
-          </small>
-        </dd>
-
-        <dt>
-          아메리카노
-        </dt>
-        <dd>
-          3,000원
-          <small>
-            <button onClick={ () => setAmericano( !hasAmericano ) }>
-              [ { hasAmericano ? '선택 해제' : '선택' } ]
-            </button>
-          </small>
-        </dd>
-
-        <dt>
-          카페라떼
-        </dt>
-        <dd>
-          3,500원
-          <small>
-            <button onClick={ () => setLatte( !hasLatte ) }>
-            [ { hasLatte ? '선택 해제' : '선택' } ]
-            </button>
-          </small>
-        </dd>
+      {
+        data.map( element => (
+          <Fragment key={ element.name }>
+            <dt>{ element.name }</dt>
+            <dd>
+              { formatter.format( element.price ) }원
+              <small>
+                <button onClick={ () => {
+                  if( selected.includes( element ) ) {
+                    setSelected( selected.filter( item => item !== element ) );
+                  }
+                  else {
+                    setSelected( [ ...selected, element ] ); // { name: '에스프레소', price: 2800 }
+                  }
+                }}>
+                  [ { selected.includes( element ) ? '선택 해제' : '선택' } ]
+                </button>
+              </small>
+            </dd>
+          </Fragment>
+        ) )
+      }
       </dl>
 
       <hr />
@@ -67,9 +64,7 @@ export default function Order() {
       <h2 className="text-xl font-bold">주문서</h2>
 
       <ul className="list-unstyled">
-        { hasEspresso && <li>에스프레소</li> }
-        { hasAmericano && <li>아메리카노</li> }
-        { hasLatte && <li>카페라떼</li> }
+        { selected.map( item => <li key={ item.name }>{ item.name }</li> ) }
       </ul>
 
       합계 : { formatter.format( sum ) }원
