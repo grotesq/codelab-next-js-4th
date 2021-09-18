@@ -1,0 +1,11 @@
+# MacOS
+.DS_Store
+
+# IDE
+.vscode
+.idea
+*.iml
+
+# Lock Files
+package-lock.json
+yarn.lock
