@@ -1,6 +1,8 @@
 import Header from '../components/Header';
-import { Fragment, useState, useMemo } from 'react';
+import {Fragment, useState, useMemo, useEffect} from 'react';
 import Head from 'next/head';
+import axios from 'axios';
+import useSWR from 'swr';
 
 const formatter = Intl.NumberFormat( 'ko-KR' );
 
@@ -12,16 +14,42 @@ const data = [
   { name: '카페모카', price: 3800 },
 ];
 
+const fetcher = function( url ) {
+    return axios.get( url ).then( response => response.data );
+}
+
 // 상태 state
-export default function Order() {
+export default function Order(props) {
+    // console.log( 'props.menu', props.menu );
   // [ 읽기전용, 쓰기전용 ] = useState( 기본값 );
+  const [ menu, setMenu ] = useState( [] );
   const [ selected, setSelected ] = useState( [] );
 
   const sum = useMemo(
     () => selected.reduce( ( previousValue, item ) => previousValue + item.price, 0 ),
     [ selected ]
   );
-  
+
+  const { data, error } = useSWR('http://localhost:3000/api/menu', fetcher);
+
+  useEffect(()=>{
+      // fetch( '/api/menu' )
+      //     .then( response => response.json() )
+      //     .then( json => setMenu( json ) )
+      //     .catch( console.warn )
+      // axios.get( '/api/menu' )
+      //     .then( response => setMenu( response.data ) )
+      //     .catch( console.warn )
+  },[]);
+
+  if( error ) {
+      return <>에러가 발생했습니다.</>;
+  }
+
+  if( !data ) { // error == falsy && data == falsy
+      return <>로딩중...</>
+  }
+
   return (
     <div className="container">
       <Head>
@@ -79,3 +107,12 @@ export default function Order() {
     </div>
   )
 }
+
+// export async function getServerSideProps(context) {
+//     const response = await axios.get('http://localhost:3000/api/menu');
+//     return {
+//         props: {
+//             menu: response.data,
+//         }, // will be passed to the page component as props
+//     }
+// }
