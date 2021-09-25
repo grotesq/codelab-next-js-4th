@@ -60,6 +60,10 @@ export default function SignIn() {
                             axios.defaults.headers.common.Authorization = `Bearer ${token}`;
                             cookies.set('token', token, {path: '/'});
                             setAuth(auth => ({...auth, token}));
+                            axios.get(`${process.env.API_HOST}/me`)
+                                .then(response => setAuth(auth => ({...auth, user: response.data})))
+                                .catch(() => {
+                                })
                             router.push(router.query.ref ?? '/me');
                         })
                         .catch(error => {

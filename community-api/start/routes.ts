@@ -26,12 +26,12 @@ Route.get('/', async () => {
 
 Route.post('/auth/sign-up', 'AuthController.signUp')
 Route.post('/auth/sign-in', 'AuthController.signIn')
-Route.get('/articles', 'ArticleController.list')
-Route.get('/articles/:id', 'ArticleController.read')
+Route.get('/articles', 'ArticlesController.list')
+Route.get('/articles/:id', 'ArticlesController.read')
 
 Route.group(() => {
   Route.get('/me', 'MeController.read')
-  Route.post('/articles', 'ArticleController.create')
-  Route.patch('/articles/:id', 'ArticleController.update')
-  Route.delete('/articles/:id', 'ArticleController.delete')
+  Route.post('/articles', 'ArticlesController.create')
+  Route.patch('/articles/:id', 'ArticlesController.update')
+  Route.delete('/articles/:id', 'ArticlesController.delete')
 }).middleware(['auth'])
