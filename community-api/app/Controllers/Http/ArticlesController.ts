@@ -3,10 +3,12 @@ import Article from 'App/Models/Article'
 
 export default class ArticlesController {
   public async list({ request }: HttpContextContract) {
-    const { page, perPage } = request.qs()
-    return await Article.query()
-      .orderBy('created_at', 'desc')
-      .paginate(page ?? 1, perPage ?? 12)
+    const { page, perPage, category } = request.qs()
+    let query = Article.query().orderBy('created_at', 'desc')
+    if (category) {
+      query = query.where('category', category)
+    }
+    return await query.paginate(page ?? 1, perPage ?? 12)
   }
 
   public async read({ request }: HttpContextContract) {
