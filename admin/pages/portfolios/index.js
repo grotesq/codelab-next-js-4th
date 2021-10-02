@@ -13,7 +13,9 @@ function Item( { portfolio }) {
                 <img src={portfolio.thumbnail} className="max-w-16 max-h-16"/>
             </div>
             <div className="flex-1 mx-2">
-                {portfolio.subject}
+                <Link href={`/portfolios/${portfolio.id}`}>
+                    <a>{portfolio.subject}</a>
+                </Link>
             </div>
             <div>
                 {DateTime.fromSeconds(portfolio.created_at.seconds).toFormat('yyyy-LL-dd')}
