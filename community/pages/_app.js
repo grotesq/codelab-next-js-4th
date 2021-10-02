@@ -29,6 +29,7 @@ function MyApp({Component, pageProps}) {
 
     return <>
         <Head>
+            <title>Codelab Community</title>
             <link
                 href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css"
                 rel="stylesheet"/>
