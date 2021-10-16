@@ -34,3 +34,7 @@ yarn-error.log*
 .vercel
 
 firebase-credentials.json
+
+serverless.yml
+.serverless
+.serverless_nextjs

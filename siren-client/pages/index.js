@@ -2,8 +2,9 @@ import Head from 'next/head';
 import {Formik} from 'formik';
 import {Fragment, useCallback, useEffect, useMemo, useState} from "react";
 import produce from 'immer';
-import {addDoc, collection, doc, getDoc, getFirestore, onSnapshot} from 'firebase/firestore';
+import {addDoc, collection, doc, getFirestore, onSnapshot} from 'firebase/firestore';
 import firebaseApp from "../net/firebaseApp";
+import uid from 'tiny-uid';
 
 const formatter = Intl.NumberFormat('ko-kr');
 
@@ -44,6 +45,29 @@ export default function Home() {
     const [orderId, setOrderId] = useState(null);
     const [order, setOrder] = useState(null);
 
+    const requestPayment = useCallback(() => {
+        return new Promise((resolve, reject) => {
+            window.IMP.request_pay({ // param
+                pg: "html5_inicis", //
+                pay_method: "card",
+                merchant_uid: uid(),
+                name: items.map(item => `${item.name} ${item.count}개`).join(', '),
+                amount: total,
+                buyer_email: "gildong@gmail.com",
+                buyer_name: "홍길동",
+                buyer_tel: "010-4242-4242",
+                buyer_addr: "서울특별시 강남구 신사동",
+                buyer_postcode: "01181"
+            }, function (rsp) { // callback
+                if (rsp.success) {
+                    resolve(rsp);
+                } else {
+                    reject(rsp);
+                }
+            });
+        });
+    }, [items, total]);
+
     const statusClassName = useMemo(() => {
         switch (order?.status) {
             case '주문 완료':
@@ -53,8 +77,8 @@ export default function Home() {
             case '제조 완료':
                 return 'text-success';
             case '픽업 완료':
-                setOrderId( null );
-                setOrder( null );
+                setOrderId(null);
+                setOrder(null);
                 return 'text-muted';
             default :
                 return 'text-secondary';
@@ -95,11 +119,13 @@ export default function Home() {
                         return errors;
                     }}
                     onSubmit={async (values) => {
+                        const paymentInfo = await requestPayment();
                         const order = {
                             ...values,
                             items,
                             status: '주문 완료',
                             createdAt: new Date(),
+                            paymentInfo,
                         }
                         const result = await addDoc(orders, order);
                         const id = result._key.path.segments[1];

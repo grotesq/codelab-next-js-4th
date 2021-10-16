@@ -6,7 +6,9 @@
     "dev": "next dev -p 4041",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy": "serverless",
+    "serverless:remove": "serverless remove"
   },
   "dependencies": {
     "firebase": "^9.1.3",
@@ -14,7 +16,9 @@
     "immer": "^9.0.6",
     "next": "11.1.2",
     "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "react-dom": "17.0.2",
+    "serverless": "^2.63.0",
+    "tiny-uid": "^1.1.1"
   },
   "devDependencies": {
     "eslint": "8.0.1",
