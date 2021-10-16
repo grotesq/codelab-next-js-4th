@@ -65,6 +65,14 @@ export default function Home() {
             }
         },
         {
+            title: '결제',
+            dataIndex: 'paymentInfo',
+            key: 'paymentInfo',
+            render: (text, record) => {
+                return record.paymentInfo ? '카드' : '현장 결제'
+            }
+        },
+        {
             title: '상태',
             dataIndex: 'status',
             key: 'status',
