@@ -1,8 +1,8 @@
 import Head from 'next/head';
 import {Formik} from 'formik';
-import {Fragment, useCallback, useMemo, useState} from "react";
+import {Fragment, useCallback, useEffect, useMemo, useState} from "react";
 import produce from 'immer';
-import {addDoc, collection, doc, getDoc, getFirestore} from 'firebase/firestore';
+import {addDoc, collection, doc, getDoc, getFirestore, onSnapshot} from 'firebase/firestore';
 import firebaseApp from "../net/firebaseApp";
 
 const formatter = Intl.NumberFormat('ko-kr');
@@ -41,7 +41,33 @@ export default function Home() {
     const total = useMemo(() => {
         return sum(items.map(item => item.price * item.count));
     }, [items]);
-    const [ order, setOrder ] = useState( null );
+    const [orderId, setOrderId] = useState(null);
+    const [order, setOrder] = useState(null);
+
+    const statusClassName = useMemo(() => {
+        switch (order?.status) {
+            case '주문 완료':
+                return 'text-secondary';
+            case '제조중':
+                return 'text-info';
+            case '제조 완료':
+                return 'text-success';
+            case '픽업 완료':
+                setOrderId( null );
+                setOrder( null );
+                return 'text-muted';
+            default :
+                return 'text-secondary';
+        }
+    }, [order])
+
+    useEffect(() => {
+        if (orderId) {
+            return onSnapshot(doc(store, 'orders', orderId), doc => {
+                setOrder(doc.data());
+            });
+        }
+    }, [orderId]);
 
     return (
         <div>
@@ -77,13 +103,14 @@ export default function Home() {
                         }
                         const result = await addDoc(orders, order);
                         const id = result._key.path.segments[1];
-                        const ref = doc( store, 'orders', id);
-                        const orderDoc = await getDoc( ref );
-                        const data = orderDoc.data();
-                        setOrder( {
-                            id,
-                            ...data,
-                        });
+                        setOrderId(id);
+                        // const ref = doc( store, 'orders', id);
+                        // const orderDoc = await getDoc( ref );
+                        // const data = orderDoc.data();
+                        // setOrder( {
+                        //     id,
+                        //     ...data,
+                        // });
                     }}
                 >
                     {({
@@ -159,12 +186,12 @@ export default function Home() {
 
                             {errors.total && (<p className="text-danger">{errors.total}</p>)}
 
-                            { !order && (
+                            {!order && (
                                 <button type="submit" className="btn btn-primary btn-lg">주문</button>
-                            ) }
-                            { order && (
-                                <p>주문 상태 : <span className="text-secondary">{order.status}</span></p>
-                            ) }
+                            )}
+                            {order && (
+                                <p>주문 상태 : <span className={statusClassName}>{order.status}</span></p>
+                            )}
                         </form>
                     )}
                 </Formik>
